@@ -8,10 +8,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Login View Controller-->
+        <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="LoginViewController" customModule="repo_bueno_IOS" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="repo_bueno_IOS" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -97,10 +97,10 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="BotonView" destination="Ezd-YR-ohS" id="EZ4-gJ-Qad"/>
-                        <outlet property="LoginView" destination="1F1-1u-r38" id="sK8-ko-YoZ"/>
-                        <outlet property="passwordTextField" destination="We2-YP-r4e" id="dUB-cA-jj4"/>
-                        <outlet property="usernameTextField" destination="aqA-fC-Cvu" id="yx8-rl-L8l"/>
+                        <outlet property="BotonView" destination="Ezd-YR-ohS" id="VKC-QD-eMw"/>
+                        <outlet property="LoginView" destination="1F1-1u-r38" id="mJm-lJ-7zy"/>
+                        <outlet property="passwordTextField" destination="We2-YP-r4e" id="7bZ-Uq-rqy"/>
+                        <outlet property="usernameTextField" destination="aqA-fC-Cvu" id="Fi8-wM-L4N"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
