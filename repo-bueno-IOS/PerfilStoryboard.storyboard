@@ -1,30 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17150" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
+    <device id="retina6_9" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17122"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Perfil View Controller-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController id="Y6W-OH-hqX" sceneMemberID="viewController">
+                <viewController id="Y6W-OH-hqX" customClass="PerfilViewController" customModule="repo_bueno_IOS" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="WhatsApp_Image_2025-02-12_at_11.57.10_AM-removebg-preview-fotor-20250301143631.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZL3-V2-HDN">
+                                <rect key="frame" x="170" y="97" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="KR6-xV-XfX"/>
+                                    <constraint firstAttribute="width" constant="100" id="PDp-Bk-hOb"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Carlos Enrique Centeno Avalos" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H0e-dE-IyI">
+                                <rect key="frame" x="75" y="207" width="290" height="55"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="Byd-6l-epE"/>
+                                    <constraint firstAttribute="width" constant="290" id="dyA-o0-rTB"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="23"/>
+                                <color key="textColor" red="0.91764705882352937" green="0.91764705882352937" blue="0.91764705882352937" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="centenoavalosc@gmail.com" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZYN-dJ-2lY">
+                                <rect key="frame" x="75" y="272" width="290" height="18"/>
+                                <fontDescription key="fontDescription" type="italicSystem" pointSize="15"/>
+                                <color key="textColor" red="0.29803921568627451" green="0.68627450980392157" blue="0.31372549019607843" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="xRl-0W-Vw6">
+                                <rect key="frame" x="0.0" y="882" width="440" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="ul0-qu-aUc"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="First"/>
+                                    <segment title="Second"/>
+                                </segments>
+                            </segmentedControl>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iAa-zv-1Gz">
+                                <rect key="frame" x="0.0" y="290" width="440" height="592"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Telefono: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fuz-8Y-ULm">
+                                        <rect key="frame" x="75" y="100" width="84.333333333333314" height="23"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                        <color key="textColor" red="0.91764705879999997" green="0.91764705879999997" blue="0.91764705879999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="871 490 174" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nXY-p2-GWk">
+                                        <rect key="frame" x="179.33333333333334" y="100" width="106.66666666666666" height="23"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                        <color key="textColor" red="0.91764705879999997" green="0.91764705879999997" blue="0.91764705879999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Edad: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cM3-b6-RFr">
+                                        <rect key="frame" x="75" y="163" width="84.333333333333314" height="23"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                        <color key="textColor" red="0.91764705879999997" green="0.91764705879999997" blue="0.91764705879999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="23" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5fv-zw-5vb">
+                                        <rect key="frame" x="179.33333333333334" y="163" width="106.66666666666666" height="23"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                        <color key="textColor" red="0.91764705879999997" green="0.91764705879999997" blue="0.91764705879999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="Fuz-8Y-ULm" firstAttribute="top" secondItem="iAa-zv-1Gz" secondAttribute="top" constant="100" id="0qo-po-9Dx"/>
+                                    <constraint firstItem="nXY-p2-GWk" firstAttribute="leading" secondItem="Fuz-8Y-ULm" secondAttribute="trailing" constant="20" id="1yC-ri-7qs"/>
+                                    <constraint firstItem="cM3-b6-RFr" firstAttribute="trailing" secondItem="Fuz-8Y-ULm" secondAttribute="trailing" id="3SA-03-ath"/>
+                                    <constraint firstItem="5fv-zw-5vb" firstAttribute="centerY" secondItem="cM3-b6-RFr" secondAttribute="centerY" id="5FE-Sb-g6e"/>
+                                    <constraint firstItem="5fv-zw-5vb" firstAttribute="leading" secondItem="nXY-p2-GWk" secondAttribute="leading" id="TNs-ZI-agv"/>
+                                    <constraint firstItem="cM3-b6-RFr" firstAttribute="top" secondItem="Fuz-8Y-ULm" secondAttribute="bottom" constant="40" id="TwX-yP-Zkr"/>
+                                    <constraint firstItem="5fv-zw-5vb" firstAttribute="trailing" secondItem="nXY-p2-GWk" secondAttribute="trailing" id="f8S-Km-Ue5"/>
+                                    <constraint firstItem="cM3-b6-RFr" firstAttribute="leading" secondItem="Fuz-8Y-ULm" secondAttribute="leading" id="inG-oq-WnH"/>
+                                    <constraint firstItem="Fuz-8Y-ULm" firstAttribute="leading" secondItem="iAa-zv-1Gz" secondAttribute="leading" constant="75" id="mW6-12-deH"/>
+                                    <constraint firstItem="nXY-p2-GWk" firstAttribute="centerY" secondItem="Fuz-8Y-ULm" secondAttribute="centerY" id="wOv-4h-mK6"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" red="0.070588235294117646" green="0.070588235294117646" blue="0.070588235294117646" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="ZL3-V2-HDN" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="35" id="4k3-eX-ZF1"/>
+                            <constraint firstItem="xRl-0W-Vw6" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="8dc-8B-fje"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="xRl-0W-Vw6" secondAttribute="bottom" id="C0Y-iy-kJf"/>
+                            <constraint firstItem="H0e-dE-IyI" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="FRB-hg-7FH"/>
+                            <constraint firstItem="H0e-dE-IyI" firstAttribute="top" secondItem="ZL3-V2-HDN" secondAttribute="bottom" constant="10" id="Prg-Xm-rsi"/>
+                            <constraint firstItem="ZYN-dJ-2lY" firstAttribute="trailing" secondItem="H0e-dE-IyI" secondAttribute="trailing" id="QYb-LC-A9T"/>
+                            <constraint firstItem="ZYN-dJ-2lY" firstAttribute="leading" secondItem="H0e-dE-IyI" secondAttribute="leading" id="Zoz-No-BF2"/>
+                            <constraint firstItem="ZYN-dJ-2lY" firstAttribute="top" secondItem="H0e-dE-IyI" secondAttribute="bottom" constant="10" id="c8o-lT-YmE"/>
+                            <constraint firstItem="ZL3-V2-HDN" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="erf-NZ-WIv"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="xRl-0W-Vw6" secondAttribute="trailing" id="qX5-kv-uyL"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="imgPerfil" destination="ZL3-V2-HDN" id="C7j-N5-R5F"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="138" y="5"/>
         </scene>
     </scenes>
     <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
+        <image name="WhatsApp_Image_2025-02-12_at_11.57.10_AM-removebg-preview-fotor-20250301143631.png" width="266" height="324"/>
     </resources>
 </document>
