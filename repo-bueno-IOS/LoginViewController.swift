@@ -23,6 +23,8 @@ class LoginViewController: UIViewController {
         // Agregar eventos para el botón
         BotonView.addTarget(self, action: #selector(buttonPressed), for: .touchDown)
         BotonView.addTarget(self, action: #selector(buttonReleased), for: [.touchUpInside, .touchCancel, .touchDragExit])
+        
+        BotonView.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
     }
 
 
@@ -124,5 +126,33 @@ class LoginViewController: UIViewController {
             self.BotonView.backgroundColor = .lightGray
             self.BotonView.transform = CGAffineTransform.identity
         })
+    }
+    
+    @objc func loginButtonTapped() {
+        guard let email = usernameTextField.text, !email.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty else {
+            print("Por favor, ingresa email y contraseña")
+            return
+        }
+        
+        AuthService.shared.login(email: email, password: password) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let token):
+                    print("Login exitoso. Token: \(token)")
+                    self.navigateToHome()
+                case .failure(let error):
+                    print("Error en el login: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    func navigateToHome() {
+        let storyboard = UIStoryboard(name: "InicioStoryboard", bundle: nil)
+        if let homeVC = storyboard.instantiateInitialViewController() {
+            homeVC.modalPresentationStyle = .fullScreen
+            self.present(homeVC, animated: true, completion: nil)
+        }
     }
 }
