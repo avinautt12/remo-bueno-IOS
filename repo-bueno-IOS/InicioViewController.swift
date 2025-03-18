@@ -9,13 +9,41 @@ import UIKit
 
 class InicioViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-    }
+    @IBOutlet weak var UserIconButton: UIBarButtonItem!
     
 
+        override func viewDidLoad() {
+            super.viewDidLoad()
+
+            // Do any additional setup after loading the view.
+        }
+
+    @IBAction func UserIconTapped(_ sender: UIBarButtonItem) {
+            navigateToPerfil()
+        }
+    
+    func navigateToPerfil() {
+        // Cargar el storyboard "InicioStoryboard"
+        let storyboard = UIStoryboard(name: "PerfilStoryboard", bundle: nil) //cambiarlo a donde quieras
+        
+        // Instanciar el controlador inicial del storyboard
+        if let homeVC = storyboard.instantiateInitialViewController() {
+            // Cambiar el estilo de presentación a full screen (si es necesario)
+            homeVC.modalPresentationStyle = .fullScreen
+            
+            // Presentar la vista
+            self.present(homeVC, animated: true, completion: nil)
+            
+            print("Navegación al inicio exitosa.")
+        } else {
+            print("No se pudo cargar el controlador inicial del storyboard InicioStoryboard.")
+        }
+    }
+
+
+    
+    
+}
     /*
     // MARK: - Navigation
 
@@ -26,4 +54,4 @@ class InicioViewController: UIViewController {
     }
     */
 
-}
+
