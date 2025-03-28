@@ -11,7 +11,7 @@ import Foundation
 class AuthService {
     static let shared = AuthService()
     
-    private let baseURL = "https://da69-177-244-54-50.ngrok-free.app/api"
+    private let baseURL = "https://4d5e-187-190-56-49.ngrok-free.app/api"
     
     private init() {}
     
