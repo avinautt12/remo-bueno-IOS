@@ -1,159 +1,231 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-
-    @IBOutlet weak var BotonView: UIButton!
-    @IBOutlet weak var LoginView: UIView!
     
-    @IBOutlet weak var usernameTextField: UITextField!
-    @IBOutlet weak var passwordTextField: UITextField!
-    var isPasswordHidden = true
+    // MARK: - Outlets
+    @IBOutlet private weak var loginButton: UIButton!
+    @IBOutlet private weak var loginContainerView: UIView!
+    @IBOutlet private weak var usernameTextField: UITextField!
+    @IBOutlet private weak var passwordTextField: UITextField!
     
+    // MARK: - Properties
+    private var isPasswordHidden = true
+    private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    private let errorLabel = UILabel()
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        redondearLoginView()
-        setUpTextFieldStyles()
-        addEyeIconToPasswordTextField()
-        
-        usernameTextField.addTarget(self, action: #selector(textFieldDidBeginEditing(_:)), for: .editingDidBegin)
-        passwordTextField.addTarget(self, action: #selector(textFieldDidBeginEditing(_:)), for: .editingDidBegin)
-        usernameTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
-        passwordTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
-        
-        // Agregar eventos para el botón
-        BotonView.addTarget(self, action: #selector(buttonPressed), for: .touchDown)
-        BotonView.addTarget(self, action: #selector(buttonReleased), for: [.touchUpInside, .touchCancel, .touchDragExit])
-        
-        BotonView.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        checkExistingSession()
+        setupUI()
+        setupTextFields()
+        setupErrorLabel()
+        setupButtonActions()
     }
-
-
-    func redondearLoginView(){
-        // Redondear LoginView
-        LoginView.layer.cornerRadius = 20
-        LoginView.layer.masksToBounds = true
-        
-        // Sombra suave alrededor de LoginView
-        LoginView.layer.shadowColor = UIColor.black.cgColor  // Color negro
-        LoginView.layer.shadowOpacity = 0.2  // Opacidad suave
-        LoginView.layer.shadowRadius = 10  // Radio de la sombra (que tan difusa es)
-        LoginView.layer.shadowOffset = CGSize(width: 0, height: 2)  // Desplazamiento suave de la sombra
-        
-        // Redondear BotonView
-        BotonView.layer.cornerRadius = 10
-        BotonView.layer.masksToBounds = true
-    }
-        
     
-
-    func setUpTextFieldStyles() {
-       
-        usernameTextField.layer.shadowColor = UIColor.black.cgColor
-        usernameTextField.layer.shadowOffset = CGSize(width: 2, height: 5)
-        usernameTextField.layer.shadowOpacity = 0.1
-        usernameTextField.layer.shadowRadius = 5
-        usernameTextField.layer.masksToBounds = false
-
-        passwordTextField.layer.shadowColor = UIColor.black.cgColor
-        passwordTextField.layer.shadowOffset = CGSize(width: 2, height: 5)
-        passwordTextField.layer.shadowOpacity = 0.1
-        passwordTextField.layer.shadowRadius = 5
-        passwordTextField.layer.masksToBounds = false
-        
-        // Eliminar el borde negro
-        usernameTextField.layer.borderWidth = 0  // Eliminar el borde
-        passwordTextField.layer.borderWidth = 0  // Eliminar el borde
-        
-        // Establecer el fondo oscuro, similar al de tu CSS
-        usernameTextField.backgroundColor = UIColor(named: "BackgroundColor") ?? UIColor(white: 0.08, alpha: 1)
-        passwordTextField.backgroundColor = UIColor(named: "BackgroundColor") ?? UIColor(white: 0.08, alpha: 1)
-
-        // Configurar el color de texto blanco y fuente ajustada
-        usernameTextField.textColor = .white
-        passwordTextField.textColor = .white
-        usernameTextField.font = UIFont.systemFont(ofSize: 14.5)
-        passwordTextField.font = UIFont.systemFont(ofSize: 14.5)
+    // MARK: - Setup Methods
+    private func checkExistingSession() {
+        if AuthService.shared.isAuthenticated() {
+            navigateToHome()
+        }
     }
-
-
-
-    func addEyeIconToPasswordTextField() {
+    
+    private func setupUI() {
+        configureLoginContainer()
+        configureLoginButton()
+        activityIndicator.color = .white
+    }
+    
+    private func configureLoginContainer() {
+        loginContainerView.layer.cornerRadius = 20
+        loginContainerView.layer.masksToBounds = true
+        
+        loginContainerView.layer.shadowColor = UIColor.black.cgColor
+        loginContainerView.layer.shadowOpacity = 0.2
+        loginContainerView.layer.shadowRadius = 10
+        loginContainerView.layer.shadowOffset = CGSize(width: 0, height: 2)
+    }
+    
+    private func configureLoginButton() {
+        loginButton.layer.cornerRadius = 10
+        loginButton.layer.masksToBounds = true
+        loginButton.backgroundColor = .systemBlue
+    }
+    
+    private func setupTextFields() {
+        [usernameTextField, passwordTextField].forEach {
+            $0?.layer.shadowColor = UIColor.black.cgColor
+            $0?.layer.shadowOffset = CGSize(width: 2, height: 5)
+            $0?.layer.shadowOpacity = 0.1
+            $0?.layer.shadowRadius = 5
+            $0?.layer.masksToBounds = false
+            $0?.layer.borderWidth = 0
+            $0?.backgroundColor = UIColor(named: "BackgroundColor") ?? UIColor(white: 0.08, alpha: 1)
+            $0?.textColor = .white
+            $0?.font = UIFont.systemFont(ofSize: 14.5)
+        }
+        
+        addEyeButtonToPasswordField()
+    }
+    
+    private func addEyeButtonToPasswordField() {
         let eyeButton = UIButton(type: .custom)
-        let eyeImage = UIImage(systemName: "eye")
-        eyeButton.setImage(eyeImage, for: .normal)
-        eyeButton.tintColor = .white // Color del ojo en blanco
+        eyeButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
+        eyeButton.tintColor = .white
         eyeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         eyeButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         
-        // Asignamos el ícono solo al campo de la contraseña
         passwordTextField.rightView = eyeButton
         passwordTextField.rightViewMode = .always
+        passwordTextField.isSecureTextEntry = true
     }
-
-    @objc func togglePasswordVisibility() {
-        isPasswordHidden.toggle()
+    
+    private func setupErrorLabel() {
+        errorLabel.textColor = .red
+        errorLabel.font = UIFont.systemFont(ofSize: 14)
+        errorLabel.textAlignment = .center
+        errorLabel.numberOfLines = 0
+        errorLabel.isHidden = true
+        errorLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        // Alternamos la visibilidad de la contraseña
-        passwordTextField.isSecureTextEntry = isPasswordHidden
+        view.addSubview(errorLabel)
         
-        // Cambiamos el ícono según la visibilidad de la contraseña
-        let eyeImage = isPasswordHidden ? UIImage(systemName: "eye") : UIImage(systemName: "eye.slash")
-        if let eyeButton = passwordTextField.rightView as? UIButton {
-            eyeButton.setImage(eyeImage, for: .normal)
+        NSLayoutConstraint.activate([
+            errorLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 8),
+            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    private func setupButtonActions() {
+        loginButton.addTarget(self, action: #selector(buttonPressed), for: .touchDown)
+        loginButton.addTarget(self, action: #selector(buttonReleased), for: [.touchUpInside, .touchUpOutside, .touchCancel])
+        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        
+        [usernameTextField, passwordTextField].forEach {
+            $0?.addTarget(self, action: #selector(textFieldDidBeginEditing(_:)), for: .editingDidBegin)
+            $0?.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
         }
     }
-
-    @objc func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.layer.shadowColor = UIColor.green.cgColor
+    
+    // MARK: - Actions
+    @objc private func togglePasswordVisibility() {
+        isPasswordHidden.toggle()
+        passwordTextField.isSecureTextEntry = isPasswordHidden
+        
+        let imageName = isPasswordHidden ? "eye.slash" : "eye"
+        if let eyeButton = passwordTextField.rightView as? UIButton {
+            eyeButton.setImage(UIImage(systemName: imageName), for: .normal)
+        }
+    }
+    
+    @objc private func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.layer.shadowColor = UIColor.systemBlue.cgColor
         textField.layer.shadowOffset = CGSize(width: 0, height: 0)
         textField.layer.shadowOpacity = 0.3
         textField.layer.shadowRadius = 5
     }
-
-    @objc func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.layer.shadowColor = UIColor.clear.cgColor // Eliminar la sombra cuando el campo pierde el foco
-    }
-
-    @objc func buttonPressed() {
-        UIView.animate(withDuration: 0.2, animations: {
-            self.BotonView.backgroundColor = .blue
-            self.BotonView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-        })
-    }
-
-    @objc func buttonReleased() {
-        UIView.animate(withDuration: 0.2, animations: {
-            self.BotonView.backgroundColor = .lightGray
-            self.BotonView.transform = CGAffineTransform.identity
-        })
+    
+    @objc private func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.layer.shadowColor = UIColor.clear.cgColor
     }
     
-    @objc func loginButtonTapped() {
-        guard let email = usernameTextField.text, !email.isEmpty,
-              let password = passwordTextField.text, !password.isEmpty else {
-            print("Por favor, ingresa email y contraseña")
-            return
+    @objc private func buttonPressed() {
+        UIView.animate(withDuration: 0.2) {
+            self.loginButton.backgroundColor = .cyan
+            self.loginButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
         }
+    }
+    
+    @objc private func buttonReleased() {
+        UIView.animate(withDuration: 0.2) {
+            self.loginButton.backgroundColor = .systemBlue
+            self.loginButton.transform = .identity
+        }
+    }
+    
+    @objc private func loginButtonTapped() {
+        guard validateInputs() else { return }
         
-        AuthService.shared.login(email: email, password: password) { result in
+        startLoginProcess()
+        
+        AuthService.shared.login(
+            email: usernameTextField.text!,
+            password: passwordTextField.text!
+        ) { [weak self] result in
             DispatchQueue.main.async {
-                switch result {
-                case .success(let token):
-                    print("Login exitoso. Token: \(token)")
-                    self.navigateToHome()
-                case .failure(let error):
-                    print("Error en el login: \(error.localizedDescription)")
-                }
+                self?.handleLoginResult(result)
             }
         }
     }
-
-    func navigateToHome() {
-        let storyboard = UIStoryboard(name: "InicioStoryboard", bundle: nil)
-        if let homeVC = storyboard.instantiateInitialViewController() {
-            homeVC.modalPresentationStyle = .fullScreen
-            self.present(homeVC, animated: true, completion: nil)
+    
+    // MARK: - Login Helpers
+    private func validateInputs() -> Bool {
+        guard let email = usernameTextField.text, !email.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty else {
+            showError("Por favor, ingresa tu correo y contraseña.")
+            return false
+        }
+        
+        errorLabel.isHidden = true
+        return true
+    }
+    
+    private func startLoginProcess() {
+        loginButton.isEnabled = false
+        loginButton.setTitle("", for: .normal)
+        
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        loginButton.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: loginButton.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor)
+        ])
+        
+        activityIndicator.startAnimating()
+    }
+    
+    private func handleLoginResult(_ result: Result<String, Error>) {
+        activityIndicator.stopAnimating()
+        activityIndicator.removeFromSuperview()
+        loginButton.isEnabled = true
+        
+        switch result {
+        case .success:
+            navigateToHome()
+        case .failure(let error):
+            showError(error.localizedDescription)
         }
     }
+    
+    private func showError(_ message: String) {
+        errorLabel.text = message
+        errorLabel.isHidden = false
+        errorLabel.shake()
+    }
+    
+    // MARK: - Navigation
+    private func navigateToHome() {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
+              let tabBarVC = UIStoryboard(name: "Main", bundle: nil)
+                .instantiateViewController(withIdentifier: "HomeVC") as? UITabBarController else {
+            return
+        }
+        
+        UIView.transition(with: sceneDelegate.window!, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            sceneDelegate.window?.rootViewController = tabBarVC
+        }, completion: nil)
+    }
+}
 
+// MARK: - Animation Extension
+extension UIView {
+    func shake() {
+        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        animation.timingFunction = CAMediaTimingFunction(name: .linear)
+        animation.duration = 0.6
+        animation.values = [-10, 10, -10, 10, -5, 5, -2.5, 2.5, 0]
+        layer.add(animation, forKey: "shake")
+    }
 }
