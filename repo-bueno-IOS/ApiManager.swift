@@ -3,7 +3,7 @@ import Foundation
 class APIManager {
     static let shared = APIManager()
     
-    private let baseURL = "https://backendv2.smartgames.tech/api"
+    public let baseURL = "https://9271-187-190-56-49.ngrok-free.app/api"
     private let urlSession = URLSession.shared
     private let cache = NSCache<NSString, NSData>()
     
@@ -217,7 +217,7 @@ class APIManager {
         }
     }
     
-    private func addAuthHeader(to request: inout URLRequest) {
+    public func addAuthHeader(to request: inout URLRequest) {
         if let token = AuthManager.shared.authToken {
             print("✅ Token siendo enviado: \(token)")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

@@ -187,19 +187,24 @@ class InicioViewController: UIViewController {
     // Reemplaza el método showOrderDetail con esto:
     private func showOrderDetail(_ order: Orden) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        print("aaaaaa")
-        if let detailVC = storyboard.instantiateViewController(withIdentifier: "OrderDetailViewController") as? OrderDetailViewController {
-            detailVC.order = order
-            print("ddddd")
-            detailVC.onStatusUpdated = { [weak self] updatedOrder in
-                if let index = self?.orders.firstIndex(where: { $0.id == updatedOrder.id }) {
-                    self?.orders[index] = updatedOrder
-                    self?.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-                    print( "oooo" )
-                }
-            }
-            navigationController?.pushViewController(detailVC, animated: true)
+        
+        guard let detailVC = storyboard.instantiateViewController(withIdentifier: "OrderDetailViewController") as? OrderDetailViewController else {
+            print("Error al instanciar OrderDetailViewController")
+            return
         }
+        
+        detailVC.order = order
+        
+        detailVC.onStatusUpdated = { [weak self] updatedOrder in
+            if let index = self?.orders.firstIndex(where: { $0.id == updatedOrder.id }) {
+                self?.orders[index] = updatedOrder
+                self?.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            }
+        }
+        
+        // Presentación modal como alternativa temporal
+        detailVC.modalPresentationStyle = .fullScreen
+        present(detailVC, animated: true)
     }
 
 }

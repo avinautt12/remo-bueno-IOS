@@ -12,7 +12,7 @@ struct Orden: Codable, Identifiable {
     let productsString: String
     let workerName: String
     let carrier: String
-    let status: String
+    var status: String
     let totalWeight: Int
     
     enum CodingKeys: String, CodingKey {
@@ -111,5 +111,23 @@ struct User: Codable {
     enum CodingKeys: String, CodingKey {
         case name
         case token
+    }
+}
+
+struct WorkerData: Codable {
+    let name: String
+    let email: String
+    let RFC: String
+    let RFID: String
+    let NSS: String
+    let phone: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case email
+        case RFC
+        case RFID
+        case NSS
+        case phone
     }
 }
