@@ -10,54 +10,30 @@ import Foundation
 
 class SensorManager {
     static let shared = SensorManager()
-    
-    private let baseURL = "https://00ec-177-244-54-50.ngrok-free.app/api"
-    private let urlSession = URLSession.shared
-    
-    private let jsonDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
-    
-    // MARK: - Sensor Endpoints
-    
-    func fetchSensors(completion: @escaping (Result<[Sensor], SensorError>) -> Void) {
-        let endpoint = baseURL
         
-        var request = URLRequest(url: URL(string: endpoint)!)
-        request.httpMethod = "GET"
-        addAuthHeader(to: &request)
+        private let baseURL = "https://3d35-187-190-56-49.ngrok-free.app/api/sensors"
+        private let urlSession = URLSession.shared
         
-        urlSession.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(.requestFailed(error)))
+        private let jsonDecoder: JSONDecoder = {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return decoder
+        }()
+        
+        func fetchSensors(completion: @escaping (Result<[Sensor], SensorError>) -> Void) {
+            guard let url = URL(string: baseURL) else {
+                completion(.failure(.invalidURL))
                 return
             }
             
-            guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(.invalidResponse))
-                return
-            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            addAuthHeader(to: &request)
             
-            guard (200...299).contains(httpResponse.statusCode) else {
-                completion(.failure(.serverError(statusCode: httpResponse.statusCode)))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(.noData))
-                return
-            }
-            
-            do {
-                let response = try self.jsonDecoder.decode(SensorResponse.self, from: data)
-                completion(.success(response.data))
-            } catch {
-                completion(.failure(.decodingFailed(error)))
-            }
-        }.resume()
-    }
+            urlSession.dataTask(with: request) { data, response, error in
+                self.handleResponse(data: data, response: response, error: error, completion: completion)
+            }.resume()
+        }
     
     func fetchSensorHistory(sensorId: Int, completion: @escaping (Result<[Sensor], SensorError>) -> Void) {
         let endpoint = "\(baseURL)/\(sensorId)/history"

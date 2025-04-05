@@ -16,6 +16,8 @@ class LoginViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         checkExistingSession()
         setupUI()
         setupTextFields()
@@ -34,6 +36,27 @@ class LoginViewController: UIViewController {
         configureLoginContainer()
         configureLoginButton()
         activityIndicator.color = .white
+        
+        // Configurar accesibilidad
+        usernameTextField.accessibilityIdentifier = "usernameTextField"
+        usernameTextField.accessibilityLabel = "Campo de correo electrónico"
+        usernameTextField.accessibilityHint = "Ingresa tu correo electrónico registrado"
+        
+        passwordTextField.accessibilityIdentifier = "passwordTextField"
+        passwordTextField.accessibilityLabel = "Campo de contraseña"
+        passwordTextField.accessibilityHint = "Ingresa tu contraseña"
+                
+        // Configurar Dynamic Type
+        usernameTextField.font = UIFont.preferredFont(forTextStyle: .body)
+        passwordTextField.font = UIFont.preferredFont(forTextStyle: .body)
+        loginButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+        errorLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        
+        // Ajustar para tamaño de texto grande
+        usernameTextField.adjustsFontForContentSizeCategory = true
+        passwordTextField.adjustsFontForContentSizeCategory = true
+        loginButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        errorLabel.adjustsFontForContentSizeCategory = true
     }
     
     private func configureLoginContainer() {
@@ -50,6 +73,9 @@ class LoginViewController: UIViewController {
         loginButton.layer.cornerRadius = 10
         loginButton.layer.masksToBounds = true
         loginButton.backgroundColor = .systemBlue
+        loginButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        loginButton.setTitleColor(.white, for: .normal)
+        loginButton.widthAnchor.constraint(equalToConstant: 130).isActive = true
     }
     
     private func setupTextFields() {
@@ -160,11 +186,46 @@ class LoginViewController: UIViewController {
         }
     }
     
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        let loginButtonFrame = loginButton.convert(loginButton.bounds, to: view)
+        let buttonBottom = loginButtonFrame.origin.y + loginButtonFrame.size.height
+        let keyboardTop = view.frame.height - keyboardSize.height
+        
+        if buttonBottom > keyboardTop {
+            view.frame.origin.y = 0 - (buttonBottom - keyboardTop + 20)
+        }
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        view.frame.origin.y = 0
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // MARK: - Login Helpers
     private func validateInputs() -> Bool {
-        guard let email = usernameTextField.text, !email.isEmpty,
-              let password = passwordTextField.text, !password.isEmpty else {
-            showError("Por favor, ingresa tu correo y contraseña.")
+        guard let email = usernameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !email.isEmpty else {
+            showError("Por favor, ingresa tu correo electrónico.")
+            return false
+        }
+        
+        guard email.isValidEmail() else {
+            showError("Por favor, ingresa un correo electrónico válido.")
+            return false
+        }
+        
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            showError("Por favor, ingresa tu contraseña.")
+            return false
+        }
+        
+        guard password.count >= 6 else {
+            showError("La contraseña debe tener al menos 6 caracteres.")
             return false
         }
         
@@ -190,6 +251,7 @@ class LoginViewController: UIViewController {
         activityIndicator.stopAnimating()
         activityIndicator.removeFromSuperview()
         loginButton.isEnabled = true
+        loginButton.setTitle("Iniciar Sesión", for: .normal) // Añade esta línea
         
         switch result {
         case .success:
@@ -227,5 +289,14 @@ extension UIView {
         animation.duration = 0.6
         animation.values = [-10, 10, -10, 10, -5, 5, -2.5, 2.5, 0]
         layer.add(animation, forKey: "shake")
+    }
+}
+
+// Extensión para validar email
+extension String {
+    func isValidEmail() -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: self)
     }
 }

@@ -3,11 +3,11 @@ import UIKit
 class ProductoOrdenCell: UITableViewCell {
     static let identifier = "ProductoOrdenCell"
     
-    // Contenedor principal
+    // MARK: - UI Components
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
-        view.layer.cornerRadius = 10
+        view.backgroundColor = .systemBackground
+        view.layer.cornerRadius = 12
         view.layer.shadowColor = UIColor.black.cgColor
         view.layer.shadowOpacity = 0.1
         view.layer.shadowOffset = CGSize(width: 0, height: 2)
@@ -15,35 +15,43 @@ class ProductoOrdenCell: UITableViewCell {
         return view
     }()
     
-    // StackView horizontal
-    private let stackView: UIStackView = {
+    private let contentStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.distribution = .fill
         stack.alignment = .center
-        stack.spacing = 12
+        stack.spacing = 16
         return stack
     }()
     
-    // Etiqueta del nombre del producto
-    private let nameLabel: UILabel = {
+    private let textStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.distribution = .fillEqually
+        stack.spacing = 4
+        return stack
+    }()
+    
+    private let nombreLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         label.textColor = .label
-        label.numberOfLines = 0
+        label.numberOfLines = 2
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
     
-    // Etiqueta del peso
-    private let weightLabel: UILabel = {
+    private let pesoLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.monospacedDigitSystemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 16, weight: .medium)
         label.textColor = .secondaryLabel
         label.textAlignment = .right
         label.setContentHuggingPriority(.required, for: .horizontal)
         return label
     }()
     
+    
+    // MARK: - Lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -54,34 +62,52 @@ class ProductoOrdenCell: UITableViewCell {
         setupUI()
     }
     
+    // MARK: - Setup
     private func setupUI() {
         selectionStyle = .none
         backgroundColor = .clear
         
-        // Configurar jerarquía de vistas
+        // Jerarquía de vistas
         contentView.addSubview(containerView)
-        containerView.addSubview(stackView)
-        stackView.addArrangedSubview(nameLabel)
-        stackView.addArrangedSubview(weightLabel)
+        containerView.addSubview(contentStackView)
+        
+        contentStackView.addArrangedSubview(textStackView)
+        contentStackView.addArrangedSubview(pesoLabel)
+        
+        textStackView.addArrangedSubview(nombreLabel)
         
         // Configurar constraints
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        contentStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
+            // Contenedor principal
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
-            stackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
-            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16)
+            // StackView de contenido
+            contentStackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
+            contentStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16),
+            contentStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            contentStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            
         ])
     }
     
+    // MARK: - Configuration
     func configure(with product: ProductoOrden) {
-        nameLabel.text = product.nombre
+        nombreLabel.text = product.nombre
+        pesoLabel.text = String(format: "%.2f g", product.peso)
+    }
+    
+    // MARK: - Layout
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        containerView.layer.shadowPath = UIBezierPath(
+            roundedRect: containerView.bounds,
+            cornerRadius: containerView.layer.cornerRadius
+        ).cgPath
     }
 }

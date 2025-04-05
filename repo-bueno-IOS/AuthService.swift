@@ -9,7 +9,7 @@ class AuthService {
     
     // MARK: - Constantes
     private struct Constants {
-        static let baseURL = "https://9271-187-190-56-49.ngrok-free.app/api"
+        static let baseURL = "https://backendv3.smartgames.tech/api"
         static let tokenKey = "authToken"
         static let tokenAccount = "authToken"
     }

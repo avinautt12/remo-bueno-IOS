@@ -9,6 +9,11 @@ class InicioViewController: UIViewController {
     @IBOutlet weak var logoutButton: UIButton!
     
     // MARK: - Propiedades
+    private var workerName: String? {
+        didSet {
+            updateWelcomeLabel()
+        }
+    }
     private var orders: [Orden] = []
     private let refreshControl = UIRefreshControl()
     
@@ -16,15 +21,27 @@ class InicioViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarInterfaz()
+        cargarNombreUsuario()
         configurarTabla()
         cargarDatosCache()
         obtenerDatos()
+    }
+    // MARK: - Manejo de Datos del Usuario
+    private func cargarNombreUsuario() {
+        // Primero intenta cargar desde caché
+        if let cachedName = UserDefaults.standard.string(forKey: "workerName") {
+            self.workerName = cachedName
+        }
+        
+        // Luego obtén datos frescos del servidor
+        obtenerDatosUsuario()
     }
     
     // MARK: - Configuración
     private func configurarInterfaz() {
         configurarBarraNavegacion()
         configurarEstilosBasicos()
+        updateWelcomeLabel()
     }
     
     private func configurarTabla() {
@@ -82,6 +99,44 @@ class InicioViewController: UIViewController {
         tableView.reloadData()
         CacheManager.shared.saveOrders(ordenes)
     }
+    
+    private func obtenerDatosUsuario() {
+            let endpoint = "\(APIManager.shared.baseURL)/worker-data"
+            
+            var request = URLRequest(url: URL(string: endpoint)!)
+            request.httpMethod = "GET"
+            APIManager.shared.addAuthHeader(to: &request)
+            
+            URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("Error al obtener datos del trabajador: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let data = data else {
+                        print("No se recibieron datos del trabajador")
+                        return
+                    }
+                    
+                    do {
+                        let workerData = try JSONDecoder().decode(WorkerData.self, from: data)
+                        self?.workerName = workerData.name
+                        UserDefaults.standard.set(workerData.name, forKey: "workerName")
+                    } catch {
+                        print("Error decodificando datos del trabajador: \(error.localizedDescription)")
+                    }
+                }
+            }.resume()
+        }
+        
+        private func updateWelcomeLabel() {
+            if let name = workerName {
+                welcomeLabel.text = "Hola, \(name)"
+            } else {
+                welcomeLabel.text = "Hola"
+            }
+        }
     
     // MARK: - Navegación
     @objc private func irAProductos() {

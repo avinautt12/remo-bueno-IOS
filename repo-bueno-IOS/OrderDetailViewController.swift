@@ -43,6 +43,12 @@ class OrderDetailViewController: UIViewController {
         title = "Detalle de Orden"
         view.backgroundColor = .systemGroupedBackground
         
+        if let headerTopConstraint = headerView.constraints.first(where: {
+            $0.firstAttribute == .top && $0.firstItem as? UIView == headerView
+        }) {
+            headerTopConstraint.constant = 60 // Ajusta este valor según necesites
+        }
+        
         // Configurar header
         headerView.backgroundColor = .systemBackground
         headerView.layer.cornerRadius = 12

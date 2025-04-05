@@ -3,7 +3,7 @@ import Foundation
 class APIManager {
     static let shared = APIManager()
     
-    public let baseURL = "https://9271-187-190-56-49.ngrok-free.app/api"
+    public let baseURL = "https://backendv3.smartgames.tech/api"
     private let urlSession = URLSession.shared
     private let cache = NSCache<NSString, NSData>()
     

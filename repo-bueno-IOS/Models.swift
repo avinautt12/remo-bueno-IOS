@@ -4,8 +4,11 @@ struct OrdenResponse: Codable {
     let data: [Orden]
 }
 
+struct SensorResponse: Decodable {
+    let data: [Sensor]
+}
 
-struct Orden: Codable, Identifiable {
+struct Orden: Codable {
     let id: Int
     let workerId: Int
     let deliveryDate: String
@@ -26,6 +29,10 @@ struct Orden: Codable, Identifiable {
         case totalWeight = "total_weight"
     }
     
+    var products: [ProductoOrden] {
+        return parseProducts(from: productsString)
+    }
+    
     var formattedDate: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -36,14 +43,16 @@ struct Orden: Codable, Identifiable {
         return deliveryDate
     }
     
-    var products: [ProductoOrden] {
-        return productsString.components(separatedBy: ", ")
+    private func parseProducts(from string: String) -> [ProductoOrden] {
+        return string.components(separatedBy: ", ")
             .compactMap { item in
                 let components = item.components(separatedBy: ": ")
                 guard components.count == 2 else { return nil }
-                let nombre = components[0]
-                let pesoString = components[1].replacingOccurrences(of: "g", with: "")
-                let peso = Double(pesoString) ?? 0.0
+                let nombre = components[0].trimmingCharacters(in: .whitespaces)
+                let pesoString = components[1]
+                    .replacingOccurrences(of: "g", with:"")
+                    .trimmingCharacters(in: .whitespaces)
+                guard let peso = Double(pesoString) else { return nil }
                 return ProductoOrden(nombre: nombre, peso: peso)
             }
     }
@@ -88,7 +97,6 @@ struct Material: Codable, Identifiable, Hashable {
         case stockMinimo = "stock_minimo"
     }
     
-    // URL segura para la imagen
     var safeImageURL: URL? {
         let cleanedURL = image
             .replacingOccurrences(of: " ", with: "%20")
@@ -96,7 +104,6 @@ struct Material: Codable, Identifiable, Hashable {
         return URL(string: cleanedURL)
     }
     
-    // Método para verificar stock bajo
     func tieneStockBajo() -> Bool {
         guard let minimo = stockMinimo else { return false }
         return stock_weight <= minimo
@@ -106,7 +113,7 @@ struct Material: Codable, Identifiable, Hashable {
 struct User: Codable {
     static var current = User(name: "Juan Pérez")
     let name: String
-    var token: String? // Para autenticación
+    var token: String?
     
     enum CodingKeys: String, CodingKey {
         case name
@@ -130,4 +137,42 @@ struct WorkerData: Codable {
         case NSS
         case phone
     }
+}
+
+
+struct Sensor: Decodable {
+    let id: String
+    let status: String?
+    let temperatureC: Double?
+    let humidityPercent: Double?
+    let eventDate: Date
+    let alertTriggered: Bool
+    let alertMessage: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case status
+        case temperatureC = "temperature_c"
+        case humidityPercent = "humidity_percent"
+        case eventDate = "event_date"
+        case alertTriggered = "alert_triggered"
+        case alertMessage = "alert_message"
+    }
+    
+    // Propiedad computada para determinar el tipo
+    var type: SensorType {
+        if temperatureC != nil || humidityPercent != nil {
+            return .temperatureHumidity
+        } else if status != nil {
+            return .light
+        } else {
+            return .pir
+        }
+    }
+}
+
+enum SensorType {
+    case light
+    case pir
+    case temperatureHumidity
 }
