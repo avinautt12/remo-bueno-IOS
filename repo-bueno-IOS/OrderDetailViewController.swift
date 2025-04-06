@@ -31,6 +31,7 @@ class OrderDetailViewController: UIViewController {
         setupTableView()
         setupCustomBackButton()
         setupKeyboardDismissal()
+        setupKeyboardObservers()
     }
     
     override func viewDidLayoutSubviews() {
@@ -112,11 +113,12 @@ class OrderDetailViewController: UIViewController {
         productsTableView.register(ProductoOrdenCell.self, forCellReuseIdentifier: ProductoOrdenCell.identifier)
         productsTableView.dataSource = self
         productsTableView.delegate = self
-        productsTableView.isScrollEnabled = false
+        productsTableView.isScrollEnabled = true
         productsTableView.rowHeight = UITableView.automaticDimension
         productsTableView.estimatedRowHeight = 60
         productsTableView.separatorStyle = .none
         productsTableView.backgroundColor = .clear
+        
     }
     
     private func setupCustomBackButton() {
@@ -155,6 +157,33 @@ class OrderDetailViewController: UIViewController {
         }
     }
     
+    // MARK: - Keyboard Handling
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+              let verificationViewFrame = verificationView.superview?.convert(verificationView.frame, to: view) else { return }
+        
+        let keyboardTop = view.frame.height - keyboardSize.height
+        let verificationViewBottom = verificationViewFrame.origin.y + verificationViewFrame.size.height
+        
+        if verificationViewBottom > keyboardTop {
+            view.frame.origin.y = -(verificationViewBottom - keyboardTop + 20)
+        }
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        view.frame.origin.y = 0
+    }
+
+    // No olvidar remover los observadores
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // MARK: - Configuration
     private func configureWithOrder() {
         guard let order = order else { return }
@@ -169,10 +198,12 @@ class OrderDetailViewController: UIViewController {
         statusLabel.text = order.status.localizedCapitalized
         switch order.status.lowercased() {
         case "pending":
+            statusLabel.text = "Pendiente"
             statusBadge.backgroundColor = .systemOrange
             actionButton.setTitle("✅ Marcar como Completado", for: .normal)
             actionButton.backgroundColor = .systemGreen
         case "completed":
+            statusLabel.text = "Completado"
             statusBadge.backgroundColor = .systemGreen
             actionButton.isHidden = true
         default:

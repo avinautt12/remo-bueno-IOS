@@ -34,8 +34,10 @@ class OrderCell: UITableViewCell {
           statusLabel.text = order.status
           switch order.status.lowercased() {
           case "pending":
+              statusLabel.text = "Pendiente"
               statusView.backgroundColor = .systemOrange
           case "completed":
+              statusLabel.text = "Completado"
               statusView.backgroundColor = .systemGreen
           default:
               statusView.backgroundColor = .systemGray

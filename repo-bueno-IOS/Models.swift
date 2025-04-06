@@ -4,10 +4,6 @@ struct OrdenResponse: Codable {
     let data: [Orden]
 }
 
-struct SensorResponse: Decodable {
-    let data: [Sensor]
-}
-
 struct Orden: Codable {
     let id: Int
     let workerId: Int
@@ -139,40 +135,58 @@ struct WorkerData: Codable {
     }
 }
 
-
-struct Sensor: Decodable {
-    let id: String
-    let status: String?
-    let temperatureC: Double?
-    let humidityPercent: Double?
-    let eventDate: Date
-    let alertTriggered: Bool
-    let alertMessage: String
+struct Area: Decodable {
+    let id: Int      // Cambiado de String a Int
+    let name: String
     
     enum CodingKeys: String, CodingKey {
-        case id = "_id"
-        case status
-        case temperatureC = "temperature_c"
-        case humidityPercent = "humidity_percent"
-        case eventDate = "event_date"
-        case alertTriggered = "alert_triggered"
-        case alertMessage = "alert_message"
-    }
-    
-    // Propiedad computada para determinar el tipo
-    var type: SensorType {
-        if temperatureC != nil || humidityPercent != nil {
-            return .temperatureHumidity
-        } else if status != nil {
-            return .light
-        } else {
-            return .pir
-        }
+        case id
+        case name
     }
 }
 
-enum SensorType {
-    case light
-    case pir
-    case temperatureHumidity
+struct SensorResponse: Decodable {
+    let temperature_sensors: Sensor?  // Hacer opcional
+    let pir_sensors: Sensor?   
+}
+
+struct Sensor: Codable {
+    let _id: String
+    let area_id: String
+    let temperature_c: Int?
+    let humidity_percent: Int?
+    let motion_detected: Bool?
+    let status: String?
+    let alert_triggered: Bool
+    let alert_message: String
+    let event_date: Date
+    
+    private enum CodingKeys: String, CodingKey {
+        case _id
+        case area_id
+        case temperature_c
+        case humidity_percent
+        case motion_detected
+        case status
+        case alert_triggered
+        case alert_message
+        case event_date
+    }
+    
+    var sensorType: String {
+        if temperature_c != nil || humidity_percent != nil {
+            return "Ambiental"
+        } else if status != nil {
+            return "Luz"
+        }
+        return "Presencia"
+    }
+    
+    private let jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ" // Formato exacto del JSON
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        return decoder
+    }()
 }

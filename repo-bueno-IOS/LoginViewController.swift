@@ -16,53 +16,51 @@ class LoginViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        setupObservers()
+        setupDelegates()
         checkExistingSession()
-        setupUI()
-        setupTextFields()
-        setupErrorLabel()
-        setupButtonActions()
+        setupUIComponents()
+        setupGestures()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - Setup Methods
-    private func checkExistingSession() {
-        if AuthService.shared.isAuthenticated() {
-            navigateToHome()
-        }
+    
+    // Configuración inicial
+    private func setupObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow),
+                                            name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide),
+                                            name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    private func setupUI() {
+    private func setupDelegates() {
+        usernameTextField.delegate = self
+        passwordTextField.delegate = self
+        usernameTextField.returnKeyType = .next
+        passwordTextField.returnKeyType = .done
+    }
+    
+    private func setupGestures() {
+        setupTapGesture()
+        setupButtonActions()
+    }
+    
+    private func setupUIComponents() {
         configureLoginContainer()
         configureLoginButton()
-        activityIndicator.color = .white
-        
-        // Configurar accesibilidad
-        usernameTextField.accessibilityIdentifier = "usernameTextField"
-        usernameTextField.accessibilityLabel = "Campo de correo electrónico"
-        usernameTextField.accessibilityHint = "Ingresa tu correo electrónico registrado"
-        
-        passwordTextField.accessibilityIdentifier = "passwordTextField"
-        passwordTextField.accessibilityLabel = "Campo de contraseña"
-        passwordTextField.accessibilityHint = "Ingresa tu contraseña"
-                
-        // Configurar Dynamic Type
-        usernameTextField.font = UIFont.preferredFont(forTextStyle: .body)
-        passwordTextField.font = UIFont.preferredFont(forTextStyle: .body)
-        loginButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
-        errorLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
-        
-        // Ajustar para tamaño de texto grande
-        usernameTextField.adjustsFontForContentSizeCategory = true
-        passwordTextField.adjustsFontForContentSizeCategory = true
-        loginButton.titleLabel?.adjustsFontForContentSizeCategory = true
-        errorLabel.adjustsFontForContentSizeCategory = true
+        setupTextFields()
+        setupErrorLabel()
+        configureAccessibility()
     }
     
+    // Configuración de componentes UI
     private func configureLoginContainer() {
         loginContainerView.layer.cornerRadius = 20
         loginContainerView.layer.masksToBounds = true
-        
         loginContainerView.layer.shadowColor = UIColor.black.cgColor
         loginContainerView.layer.shadowOpacity = 0.2
         loginContainerView.layer.shadowRadius = 10
@@ -90,7 +88,6 @@ class LoginViewController: UIViewController {
             $0?.textColor = .white
             $0?.font = UIFont.systemFont(ofSize: 14.5)
         }
-        
         addEyeButtonToPasswordField()
     }
     
@@ -124,6 +121,34 @@ class LoginViewController: UIViewController {
         ])
     }
     
+    private func configureAccessibility() {
+        activityIndicator.color = .white
+        
+        usernameTextField.accessibilityIdentifier = "usernameTextField"
+        usernameTextField.accessibilityLabel = "Campo de correo electrónico"
+        usernameTextField.accessibilityHint = "Ingresa tu correo electrónico registrado"
+        
+        passwordTextField.accessibilityIdentifier = "passwordTextField"
+        passwordTextField.accessibilityLabel = "Campo de contraseña"
+        passwordTextField.accessibilityHint = "Ingresa tu contraseña"
+        
+        usernameTextField.font = UIFont.preferredFont(forTextStyle: .body)
+        passwordTextField.font = UIFont.preferredFont(forTextStyle: .body)
+        loginButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+        errorLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        
+        usernameTextField.adjustsFontForContentSizeCategory = true
+        passwordTextField.adjustsFontForContentSizeCategory = true
+        loginButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        errorLabel.adjustsFontForContentSizeCategory = true
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
     private func setupButtonActions() {
         loginButton.addTarget(self, action: #selector(buttonPressed), for: .touchDown)
         loginButton.addTarget(self, action: #selector(buttonReleased), for: [.touchUpInside, .touchUpOutside, .touchCancel])
@@ -133,6 +158,79 @@ class LoginViewController: UIViewController {
             $0?.addTarget(self, action: #selector(textFieldDidBeginEditing(_:)), for: .editingDidBegin)
             $0?.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
         }
+    }
+    
+    // MARK: - Business Logic
+    private func checkExistingSession() {
+        if AuthService.shared.isAuthenticated() {
+            navigateToHome()
+        }
+    }
+    
+    private func validateInputs() -> Bool {
+        guard let email = usernameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !email.isEmpty else {
+            showError("Por favor, ingresa tu correo electrónico.")
+            return false
+        }
+        
+        guard email.isValidEmail() else {
+            showError("Por favor, ingresa un correo electrónico válido.")
+            return false
+        }
+        
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            showError("Por favor, ingresa tu contraseña.")
+            return false
+        }
+        
+        guard password.count >= 6 else {
+            showError("La contraseña debe tener al menos 6 caracteres.")
+            return false
+        }
+        
+        errorLabel.isHidden = true
+        return true
+    }
+    
+    private func startLoginProcess() {
+        loginButton.isEnabled = false
+        loginButton.setTitle("", for: .normal)
+        loginButton.heightAnchor.constraint(equalToConstant: loginButton.bounds.height).isActive = true
+        
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        loginButton.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: loginButton.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor)
+        ])
+        activityIndicator.startAnimating()
+    }
+    
+    private func handleLoginResult(_ result: Result<String, Error>) {
+        activityIndicator.stopAnimating()
+        activityIndicator.removeFromSuperview()
+        loginButton.isEnabled = true
+        loginButton.setTitle("Iniciar Sesión", for: .normal)
+        
+        switch result {
+        case .success:
+            navigateToHome()
+        case .failure(let error):
+            showError(error.localizedDescription)
+        }
+    }
+    
+    private func navigateToHome() {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
+              let tabBarVC = UIStoryboard(name: "Main", bundle: nil)
+                .instantiateViewController(withIdentifier: "HomeVC") as? UITabBarController else {
+            return
+        }
+        
+        UIView.transition(with: sceneDelegate.window!, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            sceneDelegate.window?.rootViewController = tabBarVC
+        }, completion: nil)
     }
     
     // MARK: - Actions
@@ -146,14 +244,14 @@ class LoginViewController: UIViewController {
         }
     }
     
-    @objc private func textFieldDidBeginEditing(_ textField: UITextField) {
+    @objc internal func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.layer.shadowColor = UIColor.systemBlue.cgColor
         textField.layer.shadowOffset = CGSize(width: 0, height: 0)
         textField.layer.shadowOpacity = 0.3
         textField.layer.shadowRadius = 5
     }
     
-    @objc private func textFieldDidEndEditing(_ textField: UITextField) {
+    @objc internal func textFieldDidEndEditing(_ textField: UITextField) {
         textField.layer.shadowColor = UIColor.clear.cgColor
     }
     
@@ -186,6 +284,10 @@ class LoginViewController: UIViewController {
         }
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     @objc private func keyboardWillShow(notification: NSNotification) {
         guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
         
@@ -202,86 +304,27 @@ class LoginViewController: UIViewController {
         view.frame.origin.y = 0
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    // MARK: - Login Helpers
-    private func validateInputs() -> Bool {
-        guard let email = usernameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !email.isEmpty else {
-            showError("Por favor, ingresa tu correo electrónico.")
-            return false
-        }
-        
-        guard email.isValidEmail() else {
-            showError("Por favor, ingresa un correo electrónico válido.")
-            return false
-        }
-        
-        guard let password = passwordTextField.text, !password.isEmpty else {
-            showError("Por favor, ingresa tu contraseña.")
-            return false
-        }
-        
-        guard password.count >= 6 else {
-            showError("La contraseña debe tener al menos 6 caracteres.")
-            return false
-        }
-        
-        errorLabel.isHidden = true
-        return true
-    }
-    
-    private func startLoginProcess() {
-        loginButton.isEnabled = false
-        loginButton.setTitle("", for: .normal)
-        
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        loginButton.addSubview(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: loginButton.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor)
-        ])
-        
-        activityIndicator.startAnimating()
-    }
-    
-    private func handleLoginResult(_ result: Result<String, Error>) {
-        activityIndicator.stopAnimating()
-        activityIndicator.removeFromSuperview()
-        loginButton.isEnabled = true
-        loginButton.setTitle("Iniciar Sesión", for: .normal) // Añade esta línea
-        
-        switch result {
-        case .success:
-            navigateToHome()
-        case .failure(let error):
-            showError(error.localizedDescription)
-        }
-    }
-    
     private func showError(_ message: String) {
         errorLabel.text = message
         errorLabel.isHidden = false
         errorLabel.shake()
     }
-    
-    // MARK: - Navigation
-    private func navigateToHome() {
-        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
-              let tabBarVC = UIStoryboard(name: "Main", bundle: nil)
-                .instantiateViewController(withIdentifier: "HomeVC") as? UITabBarController else {
-            return
+}
+
+// MARK: - Extensions
+
+extension LoginViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == usernameTextField {
+            passwordTextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+            loginButtonTapped()
         }
-        
-        UIView.transition(with: sceneDelegate.window!, duration: 0.3, options: .transitionCrossDissolve, animations: {
-            sceneDelegate.window?.rootViewController = tabBarVC
-        }, completion: nil)
+        return true
     }
 }
 
-// MARK: - Animation Extension
 extension UIView {
     func shake() {
         let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
@@ -292,7 +335,6 @@ extension UIView {
     }
 }
 
-// Extensión para validar email
 extension String {
     func isValidEmail() -> Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"

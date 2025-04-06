@@ -7,8 +7,7 @@ class InicioViewController: UIViewController {
     @IBOutlet weak var welcomeLabel: UILabel!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     @IBOutlet weak var logoutButton: UIButton!
-    
-    // MARK: - Propiedades
+        // MARK: - Propiedades
     private var workerName: String? {
         didSet {
             updateWelcomeLabel()
@@ -66,6 +65,7 @@ class InicioViewController: UIViewController {
     private func configurarEstilosBasicos() {
         view.backgroundColor = .systemBackground
         tableView.backgroundColor = .systemGroupedBackground
+        
     }
     
     // MARK: - Manejo de Datos

@@ -33,6 +33,7 @@ class ProductosViewController: UIViewController {
         collectionView.register(ProductoCell.nib, forCellWithReuseIdentifier: ProductoCell.identifier)
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.backgroundColor = .systemGroupedBackground
         
         // Configurar refresh control
         refreshControl.tintColor = .systemBlue
@@ -44,8 +45,20 @@ class ProductosViewController: UIViewController {
         searchBar.placeholder = "Buscar por nombre o código"
         searchBar.searchTextField.backgroundColor = .systemBackground
         
-        // Configurar layout
+        // Configurar layout con nuevo estilo
         configureCollectionViewLayout()
+        
+        // Añadir gesto para ocultar teclado
+        setupTapGestureToDismissKeyboard()
+    }
+    private func setupTapGestureToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        collectionView.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func dismissKeyboard() {
+        searchBar.resignFirstResponder()
     }
     
     private func configureCollectionViewLayout() {
@@ -56,7 +69,7 @@ class ProductosViewController: UIViewController {
         layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         let width = collectionView.frame.width - 32 // 16 de padding en cada lado
-        layout.itemSize = CGSize(width: width, height: 100)
+        layout.itemSize = CGSize(width: width, height: 120) // Aumenté la altura para mejor visualización
         
         collectionView.collectionViewLayout = layout
     }
@@ -174,6 +187,9 @@ class ProductosViewController: UIViewController {
             navigationController?.pushViewController(detailVC, animated: true)
         }
     }
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        dismissKeyboard()
+    }
     
     // MARK: - Alerts
     private func showErrorAlert(message: String) {
@@ -213,13 +229,28 @@ extension ProductosViewController: UISearchBarDelegate {
         filterProductos(searchText: searchText)
     }
     
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
+    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
+        dismissKeyboard()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
-        searchBar.resignFirstResponder()
         filterProductos(searchText: nil)
+        dismissKeyboard()
+    }
+}
+
+extension ProductosViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.frame.width - 32
+        return CGSize(width: width, height: 120)
     }
 }
